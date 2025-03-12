@@ -32,4 +32,20 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       expect(errors).to be_empty
     end
   end
+
+  context 'when invalid parameters are provided' do
+    let(:invalid_parameters) { { title: "", body: "" } }
+
+    it 'returns errors and does not create a note' do
+      post '/graphql', params: { query: create_note_mutation, variables: invalid_parameters }
+      expect(response).to have_http_status(:ok)
+
+      json = JSON.parse(response.body)
+      data = json['data']['createNote']
+      errors = data['errors']
+
+      expect(errors).not_to be_empty
+      expect(data['note']).to be_nil
+    end
+  end
 end
