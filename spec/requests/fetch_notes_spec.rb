@@ -29,4 +29,22 @@ RSpec.describe 'GraphQL fetchNotes query', type: :request do
       expect(json['data']['fetchNotes']).to eq([])
     end
   end
+  context 'when the query is invalid' do
+    let(:invalid_query) do
+      <<-GRAPHQL
+        {
+          fetchNotes {
+            invalid
+          }
+        }
+      GRAPHQL
+    end
+
+    it 'returns an errors object' do
+      post '/graphql', params: { query: invalid_query }
+      json = JSON.parse(response.body)
+      expect(json).to have_key('errors')
+      expect(json['errors']).not_to be_empty
+    end
+  end
 end
