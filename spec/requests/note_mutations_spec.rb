@@ -30,6 +30,18 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       }
     GRAPHQL
   end
+
+  let(:delete_note_mutation) do
+    <<-GRAPHQL
+      mutation DeleteNote($id: ID!) {
+        deleteNote(input: { id: $id}) {
+          success
+          errors
+        }
+      }
+    GRAPHQL
+  end
+
   context 'when valid parameters are provided' do
     let(:parameters) { { title: "New Note", body: "This is a new note." } }
 
@@ -92,6 +104,19 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       expect(errors).not_to be_empty
       expect(errors).to include('Note not found')
       expect(update_note_response["note"]).to be_nil
+    end
+  end
+  context 'when valid id is provided' do
+    let(:existing_note) { create(:note, title: "Test Note", body: "This is a test.") }
+    it 'deletes a note successfully' do
+      note_id = { id: existing_note.id }
+
+      post '/graphql', params: { query: delete_note_mutation, variables: note_id }
+      json = JSON.parse(response.body)
+
+      expect(json["data"]["deleteNote"]["success"]).to be true
+      expect(json["data"]["deleteNote"]["errors"]).to be_empty
+      expect(Note.exists?(note.id)).to be false
     end
   end
 end
