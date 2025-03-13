@@ -15,6 +15,21 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       }
     GRAPHQL
   end
+
+  let(:update_note_mutation) do
+    <<-GRAPHQL
+      mutation UpdateNote($id: ID!, $title: String!, $body: String!) {
+        updateNote(input: { id: $id, title: $title, body: $body }) {
+          note {
+            id
+            title
+            body
+          }
+          errors
+        }
+      }
+    GRAPHQL
+  end
   context 'when valid parameters are provided' do
     let(:parameters) { { title: "New Note", body: "This is a new note." } }
 
@@ -46,6 +61,21 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
 
       expect(errors).not_to be_empty
       expect(data['note']).to be_nil
+    end
+  end
+
+  context 'when valid update parameters are provided' do
+    let(:existing_note) { create(:note, title: "Test Note", body: "This is a test.") }
+    let(:valid_update_parameters) { { id: existing_note.id, title: "Updated Title", body: "Updated Body" } }
+
+    it 'updates the note successfully' do
+      post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
+      json_response = JSON.parse(response.body)
+      updated_note = json_response["data"]["updateNote"]["note"]
+
+      expect(updated_note["title"]).to eq("Updated Title")
+      expect(updated_note["body"]).to eq("Updated Body")
+      expect(json_response["data"]["updateNote"]["errors"]).to be_empty
     end
   end
 end
