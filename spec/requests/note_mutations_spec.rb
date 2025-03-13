@@ -78,4 +78,20 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       expect(json_response["data"]["updateNote"]["errors"]).to be_empty
     end
   end
+
+  context 'when existing note was not found' do
+    let(:valid_update_parameters) { { id: 122, title: "Updated Title", body: "Updated Body" } }
+
+    it 'return error not found' do
+      post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
+      json_response = JSON.parse(response.body)
+      expect(response).to have_http_status(:ok)
+      update_note_response = json_response["data"]["updateNote"]
+      errors = update_note_response['errors']
+
+      expect(errors).not_to be_empty
+      expect(errors).to include('Note not found')
+      expect(update_note_response["note"]).to be_nil
+    end
+  end
 end
