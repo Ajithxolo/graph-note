@@ -116,7 +116,7 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
 
       expect(json["data"]["deleteNote"]["success"]).to be true
       expect(json["data"]["deleteNote"]["errors"]).to be_empty
-      expect(Note.exists?(note.id)).to be false
+      expect(Note.exists?(existing_note.id)).to be false
     end
   end
 end
