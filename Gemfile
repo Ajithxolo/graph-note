@@ -47,9 +47,12 @@ group :development, :test do
 
   gem "rspec-rails", "~> 7.1", ">= 7.1.1"
   gem "factory_bot_rails"
+  gem "vcr"
+  gem "webmock"
 end
 group :development do
   gem "pry"
   gem "graphiql-rails"
+  gem "strong_migrations"
 end
 gem "graphql"
