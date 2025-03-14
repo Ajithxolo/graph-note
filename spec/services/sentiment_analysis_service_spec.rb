@@ -7,10 +7,10 @@ RSpec.describe SentimentAnalysisService, type: :service, vcr: { cassette_name: "
 
       it 'returns a sentiment score and label' do
         response = SentimentAnalysisService.new.analyze(sample_text)
-
         expect(response).to include(:sentiment_score, :sentiment_label)
         expect(response[:sentiment_score]).to be_a(Float)
-        expect(response[:sentiment_label]).to be_in([ 'positive', 'negative', 'neutral' ])
+        expect(response[:sentiment_score]).to eq(1.0)
+        expect(response[:sentiment_label]).to eq('positive')
       end
     end
   end

@@ -21,7 +21,7 @@ RSpec.describe OpenAiClient, type: :service, vcr: { cassette_name: "open_ai_clie
   shared_examples 'error API response' do |error_code|
     it 'returns an error response' do
       response = client.chat_completion(messages: messages)
-      
+
       expect(response).to be_a(Hash)
       expect(response).to have_key("error")
       expect(response["error"]["code"]).to eq(error_code)
