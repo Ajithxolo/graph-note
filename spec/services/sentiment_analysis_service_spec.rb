@@ -39,5 +39,17 @@ RSpec.describe SentimentAnalysisService, type: :service do
         expect(response[:error]).to eq('Text must be present.')
       end
     end
+
+    context 'when the API returns an error' do
+      let(:sample_text) { "Something unexpected!" }
+
+      it 'handles API errors gracefully' do
+        allow_any_instance_of(SentimentAnalysisService).to receive(:call_openai_api).and_raise(StandardError, 'API Error')
+
+        response = SentimentAnalysisService.new.analyze(sample_text)
+        expect(response).to include(:error)
+        expect(response[:error]).not_to be_empty
+      end
+    end
   end
 end
