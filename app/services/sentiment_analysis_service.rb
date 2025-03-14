@@ -1,12 +1,14 @@
 require "httparty"
 
 class SentimentAnalysisService
+  class SentimentError < StandardError; end
   def initialize(client: OpenAiClient.new)
     @client = client
   end
 
   def analyze(text)
     begin
+      validate_input(text)
       response = call_openai_api(text)
       parsed_response = parse_response(response)
       parsed_response
@@ -16,6 +18,10 @@ class SentimentAnalysisService
   end
 
   private
+
+  def validate_input(text)
+    raise SentimentError, "Text must be present." if text.nil? || text.strip.empty?
+  end
 
   def call_openai_api(text)
     messages = [
