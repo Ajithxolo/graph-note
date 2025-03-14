@@ -1,7 +1,7 @@
 class OpenAiClient
   include HTTParty
   OPENAI_URL = "https://api.openai.com/v1"
-  def initialize(api_key)
+  def initialize(api_key = Rails.application.credentials.dig(:openai, :api_key) || ENV["OPENAI_API_KEY"])
     @api_key = api_key
   end
 

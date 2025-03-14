@@ -1,10 +1,8 @@
 require "httparty"
 
 class SentimentAnalysisService
-  OPENAI_URL = "https://api.openai.com/v1/chat/completions"
-
-  def initialize(api_key = Rails.application.credentials.dig(:openai, :api_key) || ENV["OPENAI_API_KEY"])
-    @api_key = api_key
+  def initialize(client: OpenAiClient.new)
+    @client = client
   end
 
   def analyze(text)
@@ -20,19 +18,11 @@ class SentimentAnalysisService
   private
 
   def call_openai_api(text)
-    headers = {
-      "Content-Type" => "application/json",
-      "Authorization" => "Bearer #{@api_key}"
-    }
-
-    body = {
-      model: "gpt-4",
-      messages: [ { role: "system", content: "Analyze sentiment: positive, negative, or neutral. Return a sentiment score between -1.0 and 1.0." },
-                 { role: "user", content: text } ]
-    }.to_json
-
-    response = HTTParty.post(OPENAI_URL, headers: headers, body: body)
-    response.parsed_response
+    messages = [
+      { role: "system", content: "Analyze sentiment: positive, negative, or neutral. Return a sentiment score between -1.0 and 1.0." },
+      { role: "user", content: text }
+    ]
+    @client.chat_completion(messages: messages)
   end
 
   def parse_response(response)
