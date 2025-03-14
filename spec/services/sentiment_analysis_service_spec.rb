@@ -1,40 +1,51 @@
 require 'rails_helper'
 
 RSpec.describe SentimentAnalysisService, type: :service do
+  subject(:service) { described_class.new }
+
   describe '#analyze' do
-    context 'when a valid text is passed' do
+    context 'with valid text input' do
       let(:positive_text) { "I absolutely love this app, it's amazing!" }
       let(:negative_text) { "I absolutely hate this app, it's terrible!" }
-      let(:neutral_text) { "This app is okay, neither great nor bad." }
+      let(:neutral_text)  { "This app is okay, neither great nor bad." }
 
-      it 'returns a sentiment score and label for positive sentiment', vcr: { cassette_name: "sentiment_analysis_positive" } do
-        response = SentimentAnalysisService.new.analyze(positive_text)
-        expect(response).to include(:sentiment_score, :sentiment_label)
-        expect(response[:sentiment_score]).to be_a(Float)
-        expect(response[:sentiment_score]).to eq(1.0)
-        expect(response[:sentiment_label]).to eq('positive')
+      context 'when sentiment is positive', vcr: { cassette_name: "sentiment_analysis_positive" } do
+        it 'returns a sentiment score of 1.0 and label "positive"' do
+          response = service.analyze(positive_text)
+          expect(response).to include(:sentiment_score, :sentiment_label)
+          expect(response[:sentiment_score]).to eq(1.0)
+          expect(response[:sentiment_label]).to eq('positive')
+        end
       end
 
-      it 'returns a sentiment score and label for negative sentiment', vcr: { cassette_name: "sentiment_analysis_negative" } do
-        response = SentimentAnalysisService.new.analyze(negative_text)
-        expect(response).to include(:sentiment_score, :sentiment_label)
-        expect(response[:sentiment_score]).to be_a(Float)
-        expect(response[:sentiment_score]).to eq(-1.0)
-        expect(response[:sentiment_label]).to eq('negative')
+      context 'when sentiment is negative', vcr: { cassette_name: "sentiment_analysis_negative" } do
+        it 'returns a sentiment score of -1.0 and label "negative"' do
+          response = service.analyze(negative_text)
+          expect(response).to include(:sentiment_score, :sentiment_label)
+          expect(response[:sentiment_score]).to eq(-1.0)
+          expect(response[:sentiment_label]).to eq('negative')
+        end
       end
 
-      it 'returns a sentiment score and label for neutral sentiment', vcr: { cassette_name: "sentiment_analysis_neutral" } do
-        response = SentimentAnalysisService.new.analyze(neutral_text)
-        expect(response[:sentiment_score]).to eq(0.0)
-        expect(response[:sentiment_label]).to eq('neutral')
+      context 'when sentiment is neutral', vcr: { cassette_name: "sentiment_analysis_neutral" } do
+        it 'returns a sentiment score of 0.0 and label "neutral"' do
+          response = service.analyze(neutral_text)
+          expect(response).to include(:sentiment_score, :sentiment_label)
+          expect(response[:sentiment_score]).to eq(0.0)
+          expect(response[:sentiment_label]).to eq('neutral')
+        end
       end
     end
 
-    context 'when an invalid text is passed' do
-      let(:invalid_text) { nil }
+    context 'with invalid text input' do
+      it 'returns an error when nil is passed' do
+        response = service.analyze(nil)
+        expect(response).to include(:error)
+        expect(response[:error]).to eq('Text must be present.')
+      end
 
-      it 'returns an error response for nil text' do
-        response = SentimentAnalysisService.new.analyze(invalid_text)
+      it 'returns an error when an empty string is passed' do
+        response = service.analyze("   ")
         expect(response).to include(:error)
         expect(response[:error]).to eq('Text must be present.')
       end
@@ -44,9 +55,11 @@ RSpec.describe SentimentAnalysisService, type: :service do
       let(:sample_text) { "Something unexpected!" }
 
       it 'handles API errors gracefully' do
-        allow_any_instance_of(SentimentAnalysisService).to receive(:call_openai_api).and_raise(StandardError, 'API Error')
+        allow_any_instance_of(SentimentAnalysisService)
+          .to receive(:call_openai_api)
+          .and_raise(StandardError, 'API Error')
 
-        response = SentimentAnalysisService.new.analyze(sample_text)
+        response = service.analyze(sample_text)
         expect(response).to include(:error)
         expect(response[:error]).not_to be_empty
       end
