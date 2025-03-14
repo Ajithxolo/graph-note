@@ -14,9 +14,9 @@ RSpec.describe OpenAiClient, type: :service, vcr: { cassette_name: "open_ai_clie
       }
 
       it 'return a parsed response with choices' do
-        response = client.chat_completion(messages)
+        response = client.chat_completion(messages: messages)
         expect(response).to be_a(Hash)
-        expect(response).to have_key(:choices)
+        expect(response).to have_key("choices")
       end
     end
   end
