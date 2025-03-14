@@ -19,5 +19,40 @@ RSpec.describe OpenAiClient, type: :service, vcr: { cassette_name: "open_ai_clie
         expect(response).to have_key("choices")
       end
     end
+
+    context 'when the API key is invalid' do
+      let(:invalid_api_key) { "invalid_api_key" }
+      subject(:client) { described_class.new(invalid_api_key) }
+      let(:messages) {
+        [
+          { role: "system", content: "Analyze sentiment: positive, negative, or neutral. Return a sentiment score between -1.0 and 1.0." },
+          { role: "user", content: "I love this product!" }
+        ]
+      }
+
+      before do
+        stub_request(:post, "https://api.openai.com/v1/chat/completions")
+          .with(headers: { "Authorization" => "Bearer #{invalid_api_key}" })
+          .to_return(
+            status: 401,
+            body: {
+              error: {
+                message: "Incorrect API key provided: #{invalid_api_key}. You can find your API key at https://platform.openai.com/account/api-keys.",
+                type: "invalid_request_error",
+                code: "invalid_api_key"
+              }
+            }.to_json,
+            headers: { "Content-Type" => "application/json" }
+          )
+      end
+
+      it 'returns an error response' do
+        response = client.chat_completion(messages: messages)
+
+        expect(response).to be_a(Hash)
+        expect(response).to have_key("error")
+        expect(response["error"]["code"]).to eq("invalid_api_key")
+      end
+    end
   end
 end
