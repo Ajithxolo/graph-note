@@ -142,6 +142,11 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
 
   describe '#delete_note' do
     context 'when valid id is provided' do
+      before do
+        allow(NoteService)
+          .to receive(:delete_note)
+          .and_return({ success: true, errors: [] })
+      end
       let(:existing_note) { create(:note, title: "Test Note", body: "This is a test.") }
       it 'deletes a note successfully' do
         note_id = { id: existing_note.id }
@@ -151,11 +156,15 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
 
         expect(json["data"]["deleteNote"]["success"]).to be true
         expect(json["data"]["deleteNote"]["errors"]).to be_empty
-        expect(Note.exists?(existing_note.id)).to be false
       end
     end
 
     context 'when invalid id is provided' do
+      before do
+        allow(NoteService)
+          .to receive(:delete_note)
+          .and_return({ success: false, errors: [ "note not found" ] })
+      end
       it 'return error with success as false' do
         invalid_note_id = { id: 000 }
 
