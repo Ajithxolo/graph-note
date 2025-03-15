@@ -68,5 +68,21 @@ RSpec.describe NoteService, type: :service do
         expect(updated_note.sentiment_label).to eq(note.sentiment_label)
       end
     end
+
+    context 'when sentiment analysis fails during update' do
+      let(:attributes) { { id: note.id, title: 'Updated Title', body: 'New body triggering error' } }
+
+      before do
+        allow_any_instance_of(SentimentAnalysisService)
+          .to receive(:analyze)
+          .and_raise(StandardError, 'API error')
+      end
+
+      it 'returns an error and does not update the note' do
+        result = NoteService.update_note(attributes)
+        expect(result.success?).to be false
+        expect(result.errors).to include('API error')
+      end
+    end
   end
 end
