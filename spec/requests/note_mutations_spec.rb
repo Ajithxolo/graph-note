@@ -140,29 +140,31 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
     end
   end
 
-  context 'when valid id is provided' do
-    let(:existing_note) { create(:note, title: "Test Note", body: "This is a test.") }
-    it 'deletes a note successfully' do
-      note_id = { id: existing_note.id }
+  describe '#delete_note' do
+    context 'when valid id is provided' do
+      let(:existing_note) { create(:note, title: "Test Note", body: "This is a test.") }
+      it 'deletes a note successfully' do
+        note_id = { id: existing_note.id }
 
-      post '/graphql', params: { query: delete_note_mutation, variables: note_id }
-      json = JSON.parse(response.body)
+        post '/graphql', params: { query: delete_note_mutation, variables: note_id }
+        json = JSON.parse(response.body)
 
-      expect(json["data"]["deleteNote"]["success"]).to be true
-      expect(json["data"]["deleteNote"]["errors"]).to be_empty
-      expect(Note.exists?(existing_note.id)).to be false
+        expect(json["data"]["deleteNote"]["success"]).to be true
+        expect(json["data"]["deleteNote"]["errors"]).to be_empty
+        expect(Note.exists?(existing_note.id)).to be false
+      end
     end
-  end
 
-  context 'when invalid id is provided' do
-    it 'return error with success as false' do
-      invalid_note_id = { id: 000 }
+    context 'when invalid id is provided' do
+      it 'return error with success as false' do
+        invalid_note_id = { id: 000 }
 
-      post '/graphql', params: { query: delete_note_mutation, variables: invalid_note_id }
-      json = JSON.parse(response.body)
+        post '/graphql', params: { query: delete_note_mutation, variables: invalid_note_id }
+        json = JSON.parse(response.body)
 
-      expect(json["data"]["deleteNote"]["success"]).to be false
-      expect(json["data"]["deleteNote"]["errors"]).not_to be_empty
+        expect(json["data"]["deleteNote"]["success"]).to be false
+        expect(json["data"]["deleteNote"]["errors"]).not_to be_empty
+      end
     end
   end
 end
