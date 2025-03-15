@@ -27,6 +27,8 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
             id
             title
             body
+            sentimentScore
+            sentimentLabel
           }
           errors
         }
@@ -92,34 +94,49 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
     end
   end
 
-  context 'when valid update parameters are provided' do
-    let(:existing_note) { create(:note, title: "Test Note", body: "This is a test.") }
-    let(:valid_update_parameters) { { id: existing_note.id, title: "Updated Title", body: "Updated Body" } }
+  describe '#UpdateNote' do
+    context 'when valid update parameters are provided' do
+      let(:existing_note) { create(:note, title: 'Test Note', body: 'This is a positive test.') }
+      let(:updated_note) do
+        existing_note.dup.tap do |n|
+          n.title = 'Updated Title'
+          n.body = 'Updated positive test'
+        end
+      end
 
-    it 'updates the note successfully' do
-      post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
-      json_response = JSON.parse(response.body)
-      updated_note = json_response["data"]["updateNote"]["note"]
+      let(:valid_update_parameters) { { id: existing_note.id, title: 'Updated Title', body: 'Updated positive test' } }
 
-      expect(updated_note["title"]).to eq("Updated Title")
-      expect(updated_note["body"]).to eq("Updated Body")
-      expect(json_response["data"]["updateNote"]["errors"]).to be_empty
+      before do
+        allow(NoteService).to receive(:update_note).and_return(Result.new(true, updated_note, [ ]))
+      end
+
+      it 'updates the note successfully' do
+        post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
+        json_response = JSON.parse(response.body)
+        updated_note = json_response["data"]["updateNote"]["note"]
+
+        expect(updated_note["title"]).to eq("Updated Title")
+        expect(updated_note["body"]).to eq("Updated positive test")
+        expect(updated_note["sentimentScore"]).to eq(1.0)
+        expect(updated_note["sentimentLabel"]).to eq('positive')
+        expect(json_response["data"]["updateNote"]["errors"]).to be_empty
+      end
     end
-  end
 
-  context 'when existing note was not found' do
-    let(:valid_update_parameters) { { id: 122, title: "Updated Title", body: "Updated Body" } }
+    context 'when existing note was not found' do
+      let(:valid_update_parameters) { { id: 122, title: "Updated Title", body: "Updated Body" } }
 
-    it 'return error not found' do
-      post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
-      json_response = JSON.parse(response.body)
-      expect(response).to have_http_status(:ok)
-      update_note_response = json_response["data"]["updateNote"]
-      errors = update_note_response['errors']
+      it 'return error not found' do
+        post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
+        json_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:ok)
+        update_note_response = json_response["data"]["updateNote"]
+        errors = update_note_response['errors']
 
-      expect(errors).not_to be_empty
-      expect(errors).to include('Note not found')
-      expect(update_note_response["note"]).to be_nil
+        expect(errors).not_to be_empty
+        expect(errors).to include('Note not found')
+        expect(update_note_response["note"]).to be_nil
+      end
     end
   end
 
