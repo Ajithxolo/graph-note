@@ -85,4 +85,17 @@ RSpec.describe NoteService, type: :service do
       end
     end
   end
+
+  describe '#delete_note' do
+    context 'when the note exists' do
+      let!(:note) { create(:note, title: 'Test Note', body: 'Some body text') }
+
+      it 'deletes the note and returns success' do
+        result = NoteService.delete_note(note.id)
+        expect(result[:success]).to eq(true)
+        expect(result[:errors]).to be_empty
+        expect(Note.exists?(note.id)).to eq(false)
+      end
+    end
+  end
 end
