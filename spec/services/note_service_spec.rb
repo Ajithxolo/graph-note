@@ -52,5 +52,21 @@ RSpec.describe NoteService, type: :service do
         expect(updated_note.sentiment_label).to eq('positive')
       end
     end
+
+    context 'when the body remains unchanged' do
+      let(:attributes) { { id: note.id, title: 'Updated Title', body: note.body } }
+
+      it 'updates the note without re-calling sentiment analysis' do
+        expect_any_instance_of(SentimentAnalysisService).not_to receive(:analyze)
+
+        result = NoteService.update_note(attributes)
+        expect(result.success?).to be true
+        updated_note = result.note
+        expect(updated_note.title).to eq('Updated Title')
+        expect(updated_note.body).to eq(note.body)
+        expect(updated_note.sentiment_score).to eq(note.sentiment_score)
+        expect(updated_note.sentiment_label).to eq(note.sentiment_label)
+      end
+    end
   end
 end
