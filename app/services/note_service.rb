@@ -58,4 +58,14 @@ class NoteService
       Result.new(false, nil, note.errors.full_messages)
     end
   end
+
+  def self.delete_note(id)
+    note = Note.find_by(id: id)
+    if note
+      note.destroy
+      { success: true, errors: [] }
+    else
+      { success: false, errors: [ "Note not found" ] }
+    end
+  end
 end
