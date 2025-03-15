@@ -44,44 +44,51 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       }
     GRAPHQL
   end
-  let(:note) { create(:note, title: 'New Note', body: 'This is a positive note.', sentiment_score: 1.0, sentiment_label: 'positive') }
 
-  before do
-    allow(NoteService).to receive(:create_note).and_return(Result.new(true, note, []))
-  end
+  describe '#CreateNote' do
+    let(:note) { create(:note, title: 'New Note', body: 'This is a positive note.', sentiment_score: 1.0, sentiment_label: 'positive') }
 
-  context 'when valid parameters are provided' do
-    let(:parameters) { { title: "New Note", body: "This is a positive note." } }
+    context 'when valid parameters are provided' do
+      let(:parameters) { { title: "New Note", body: "This is a positive note." } }
 
-    it 'creates a note successfully' do
-      post '/graphql', params: { query: create_note_mutation, variables: parameters }
-      expect(response).to have_http_status(:ok)
+      before do
+        allow(NoteService).to receive(:create_note).and_return(Result.new(true, note, []))
+      end
 
-      json = JSON.parse(response.body)
-      data = json['data']['createNote']
-      created_note = data['note']
-      errors = data['errors']
-      expect(created_note['title']).to eq(parameters[:title])
-      expect(created_note['body']).to eq(parameters[:body])
-      expect(created_note['sentimentScore']).to eq(1.0)
-      expect(created_note['sentimentLabel']).to eq('positive')
-      expect(errors).to be_empty
+      it 'creates a note successfully' do
+        post '/graphql', params: { query: create_note_mutation, variables: parameters }
+        expect(response).to have_http_status(:ok)
+
+        json = JSON.parse(response.body)
+        data = json['data']['createNote']
+        created_note = data['note']
+        errors = data['errors']
+        expect(created_note['title']).to eq(parameters[:title])
+        expect(created_note['body']).to eq(parameters[:body])
+        expect(created_note['sentimentScore']).to eq(1.0)
+        expect(created_note['sentimentLabel']).to eq('positive')
+        expect(errors).to be_empty
+      end
     end
-  end
 
-  context 'when invalid parameters are provided' do
-    let(:invalid_parameters) { { title: "", body: "" } }
+    context 'when invalid parameters are provided' do
+      let(:invalid_parameters) { { title: "", body: "" } }
 
-    it 'returns errors and does not create a note' do
-      post '/graphql', params: { query: create_note_mutation, variables: invalid_parameters }
-      expect(response).to have_http_status(:ok)
+      before do
+        allow(NoteService).to receive(:create_note).and_return(Result.new(false, nil, [ "title must be present", "body must be present" ]))
+      end
 
-      json = JSON.parse(response.body)
-      data = json['data']['createNote']
-      errors = data['errors']
+      it 'returns errors and does not create a note' do
+        post '/graphql', params: { query: create_note_mutation, variables: invalid_parameters }
+        expect(response).to have_http_status(:ok)
 
-      expect(errors).not_to be_empty
-      expect(data['note']).to be_nil
+        json = JSON.parse(response.body)
+        data = json['data']['createNote']
+        errors = data['errors']
+
+        expect(errors).not_to be_empty
+        expect(data['note']).to be_nil
+      end
     end
   end
 
