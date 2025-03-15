@@ -64,5 +64,21 @@ RSpec.describe SentimentAnalysisService, type: :service do
         expect(response[:error]).not_to be_empty
       end
     end
+
+    context 'when sentiment analysis fails' do
+      let(:attributes) { { title: 'Test Note', body: 'This is a positive note.' } }
+
+      before do
+        allow_any_instance_of(SentimentAnalysisService)
+          .to receive(:analyze)
+          .and_raise(StandardError, 'API error')
+      end
+
+      it 'returns an error and does not create a note' do
+        result = NoteService.create_note(attributes)
+        expect(result.success?).to be false
+        expect(result.errors).to include('API error')
+      end
+    end
   end
 end
