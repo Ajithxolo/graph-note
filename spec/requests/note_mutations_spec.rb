@@ -1,4 +1,5 @@
 require 'rails_helper'
+Result = Struct.new(:success?, :note, :errors, :error)
 
 RSpec.describe 'GraphQL Note Mutations', type: :request do
   let(:create_note_mutation) do
@@ -9,6 +10,8 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
             id
             title
             body
+            sentimentScore
+            sentimentLabel
           }
           errors
         }
@@ -41,9 +44,14 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       }
     GRAPHQL
   end
+  let(:note) { create(:note, title: 'New Note', body: 'This is a positive note.', sentiment_score: 1.0, sentiment_label: 'positive') }
+
+  before do
+    allow(NoteService).to receive(:create_note).and_return(Result.new(true, note, []))
+  end
 
   context 'when valid parameters are provided' do
-    let(:parameters) { { title: "New Note", body: "This is a new note." } }
+    let(:parameters) { { title: "New Note", body: "This is a positive note." } }
 
     it 'creates a note successfully' do
       post '/graphql', params: { query: create_note_mutation, variables: parameters }
@@ -53,9 +61,10 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       data = json['data']['createNote']
       created_note = data['note']
       errors = data['errors']
-
-      expect(created_note['title']).to eq("New Note")
-      expect(created_note['body']).to eq("This is a new note.")
+      expect(created_note['title']).to eq(parameters[:title])
+      expect(created_note['body']).to eq(parameters[:body])
+      expect(created_note['sentimentScore']).to eq(1.0)
+      expect(created_note['sentimentLabel']).to eq('positive')
       expect(errors).to be_empty
     end
   end
