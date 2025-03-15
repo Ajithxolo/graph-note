@@ -96,9 +96,10 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
 
   describe '#UpdateNote' do
     context 'when valid update parameters are provided' do
-      let(:existing_note) { create(:note, title: 'Test Note', body: 'This is a positive test.') }
+      let(:existing_note) { create(:note, title: 'Test Note', body: 'This is a positive test.', sentiment_score: 1.0, sentiment_label: 'positive') }
       let(:updated_note) do
         existing_note.dup.tap do |n|
+          n.id = existing_note.id
           n.title = 'Updated Title'
           n.body = 'Updated positive test'
         end
@@ -107,14 +108,13 @@ RSpec.describe 'GraphQL Note Mutations', type: :request do
       let(:valid_update_parameters) { { id: existing_note.id, title: 'Updated Title', body: 'Updated positive test' } }
 
       before do
-        allow(NoteService).to receive(:update_note).and_return(Result.new(true, updated_note, [ ]))
+        allow(NoteService).to receive(:update_note).and_return(Result.new(true, updated_note, []))
       end
 
       it 'updates the note successfully' do
         post '/graphql', params: { query: update_note_mutation, variables: valid_update_parameters }
         json_response = JSON.parse(response.body)
         updated_note = json_response["data"]["updateNote"]["note"]
-
         expect(updated_note["title"]).to eq("Updated Title")
         expect(updated_note["body"]).to eq("Updated positive test")
         expect(updated_note["sentimentScore"]).to eq(1.0)
