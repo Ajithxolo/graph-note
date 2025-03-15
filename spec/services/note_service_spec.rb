@@ -2,9 +2,9 @@ require 'rails_helper'
 
 RSpec.describe NoteService, type: :service do
   describe '#create_note' do
-    subject(:result) { NoteService.create_note(attributes) }
+    subject(:result) { described_class.create_note(attributes) }
 
-    context 'when valid attributes passed' do
+    context 'when valid attributes are passed' do
       let(:attributes) { { title: 'Test Note', body: 'This is a positive note.' } }
       let(:sentiment_result) { { sentiment_score: 1.0, sentiment_label: 'positive' } }
 
@@ -16,13 +16,15 @@ RSpec.describe NoteService, type: :service do
       end
 
       it 'creates a note with sentiment analysis results' do
-        expect(result.success?).to be true
-        note = result.note
-        expect(note).to be_persisted
-        expect(note.title).to eq('Test Note')
-        expect(note.body).to eq('This is a positive note.')
-        expect(note.sentiment_score).to eq(1.0)
-        expect(note.sentiment_label).to eq('positive')
+        aggregate_failures do
+          expect(result.success?).to be true
+          note = result.note
+          expect(note).to be_persisted
+          expect(note.title).to eq('Test Note')
+          expect(note.body).to eq('This is a positive note.')
+          expect(note.sentiment_score).to eq(1.0)
+          expect(note.sentiment_label).to eq('positive')
+        end
       end
     end
   end
@@ -35,7 +37,6 @@ RSpec.describe NoteService, type: :service do
       let(:sentiment_result) { { sentiment_score: 1.0, sentiment_label: 'positive' } }
 
       before do
-        # Expect sentiment analysis only when the body is updated.
         expect_any_instance_of(SentimentAnalysisService)
           .to receive(:analyze)
           .with(attributes[:body])
@@ -43,13 +44,15 @@ RSpec.describe NoteService, type: :service do
       end
 
       it 'updates the note and recalculates sentiment' do
-        result = NoteService.update_note(attributes)
-        expect(result.success?).to be true
-        updated_note = result.note
-        expect(updated_note.title).to eq('Updated Title')
-        expect(updated_note.body).to eq('This is an updated positive note.')
-        expect(updated_note.sentiment_score).to eq(1.0)
-        expect(updated_note.sentiment_label).to eq('positive')
+        result = described_class.update_note(attributes)
+        aggregate_failures do
+          expect(result.success?).to be true
+          updated_note = result.note
+          expect(updated_note.title).to eq('Updated Title')
+          expect(updated_note.body).to eq('This is an updated positive note.')
+          expect(updated_note.sentiment_score).to eq(1.0)
+          expect(updated_note.sentiment_label).to eq('positive')
+        end
       end
     end
 
@@ -58,14 +61,15 @@ RSpec.describe NoteService, type: :service do
 
       it 'updates the note without re-calling sentiment analysis' do
         expect_any_instance_of(SentimentAnalysisService).not_to receive(:analyze)
-
-        result = NoteService.update_note(attributes)
-        expect(result.success?).to be true
-        updated_note = result.note
-        expect(updated_note.title).to eq('Updated Title')
-        expect(updated_note.body).to eq(note.body)
-        expect(updated_note.sentiment_score).to eq(note.sentiment_score)
-        expect(updated_note.sentiment_label).to eq(note.sentiment_label)
+        result = described_class.update_note(attributes)
+        aggregate_failures do
+          expect(result.success?).to be true
+          updated_note = result.note
+          expect(updated_note.title).to eq('Updated Title')
+          expect(updated_note.body).to eq(note.body)
+          expect(updated_note.sentiment_score).to eq(note.sentiment_score)
+          expect(updated_note.sentiment_label).to eq(note.sentiment_label)
+        end
       end
     end
 
@@ -79,9 +83,11 @@ RSpec.describe NoteService, type: :service do
       end
 
       it 'returns an error and does not update the note' do
-        result = NoteService.update_note(attributes)
-        expect(result.success?).to be false
-        expect(result.errors).to include('API error')
+        result = described_class.update_note(attributes)
+        aggregate_failures do
+          expect(result.success?).to be false
+          expect(result.errors).to include('API error')
+        end
       end
     end
   end
@@ -91,18 +97,22 @@ RSpec.describe NoteService, type: :service do
       let!(:note) { create(:note, title: 'Test Note', body: 'Some body text') }
 
       it 'deletes the note and returns success' do
-        result = NoteService.delete_note(note.id)
-        expect(result[:success]).to eq(true)
-        expect(result[:errors]).to be_empty
-        expect(Note.exists?(note.id)).to eq(false)
+        result = described_class.delete_note(note.id)
+        aggregate_failures do
+          expect(result[:success]).to be true
+          expect(result[:errors]).to be_empty
+          expect(Note.exists?(note.id)).to be false
+        end
       end
     end
 
     context 'when the note does not exist' do
       it 'returns an error with success set to false' do
-        result = NoteService.delete_note(0)
-        expect(result[:success]).to eq(false)
-        expect(result[:errors]).to include('Note not found')
+        result = described_class.delete_note(0)
+        aggregate_failures do
+          expect(result[:success]).to be false
+          expect(result[:errors]).to include('Note not found')
+        end
       end
     end
   end
