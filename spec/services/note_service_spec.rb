@@ -97,5 +97,13 @@ RSpec.describe NoteService, type: :service do
         expect(Note.exists?(note.id)).to eq(false)
       end
     end
+
+    context 'when the note does not exist' do
+      it 'returns an error with success set to false' do
+        result = NoteService.delete_note(0)
+        expect(result[:success]).to eq(false)
+        expect(result[:errors]).to include('Note not found')
+      end
+    end
   end
 end
