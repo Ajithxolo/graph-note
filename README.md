@@ -15,8 +15,12 @@
 
 ✅ **Robust Data Validation & Sanitization**  
 - Custom sanitization methods to prevent invalid inputs.  
-- Ensures consistency before storing in the database.  
+- Ensures consistency before storing in the database.
 
+---
+## ** Demo and Documentation links**
+- **Short demo URL** https://www.loom.com/share/4f65e834be184f30849cb149b465c6b1
+- **Strong migration (created blog):** https://medium.com/@ajithbuddy/mastering-strong-migrations-my-journey-to-safer-rails-database-migrations-b829c2c6a3a7
 ---
 
 ## **📦 Tech Stack**  
