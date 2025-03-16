@@ -50,10 +50,10 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "vcr"
   gem "webmock"
+  gem "strong_migrations"
 end
 group :development do
   gem "pry"
   gem "graphiql-rails"
-  gem "strong_migrations"
 end
 gem "graphql"
