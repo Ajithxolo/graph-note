@@ -1,0 +1,116 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.openai.com/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"gpt-4o-mini","messages":[{"role":"system","content":"Analyze
+        sentiment: positive, negative, or neutral. Return a sentiment score between
+        -1.0 and 1.0."},{"role":"user","content":"I absolutely love this app, it''s
+        amazing!"}],"store":true}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <API_KEY>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 14 Mar 2025 15:02:30 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - X-Request-ID
+      Openai-Organization:
+      - personal-veydrh
+      Openai-Processing-Ms:
+      - '436'
+      Openai-Version:
+      - '2020-10-01'
+      X-Ratelimit-Limit-Requests:
+      - '200'
+      X-Ratelimit-Limit-Tokens:
+      - '100000'
+      X-Ratelimit-Remaining-Requests:
+      - '199'
+      X-Ratelimit-Remaining-Tokens:
+      - '99947'
+      X-Ratelimit-Reset-Requests:
+      - 7m12s
+      X-Ratelimit-Reset-Tokens:
+      - 22m53.76s
+      X-Request-Id:
+      - req_89d3ce17ee6d27cd5950b63c018561e2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cf-Cache-Status:
+      - DYNAMIC
+      Set-Cookie:
+      - __cf_bm=tkpo52TwMvAlngauwKnWHto3xF.85GghHRTtwfNd8lM-1741964550-1.0.1.1-r2SsWedubOOzhBmc.n8j793tRFhJ2lBRkzg6DxkFfJGKZZVfFLcKd_Fsf2tikc5CysHheM_hQUQW1fhz_E7ONIf1zvYcETC5j09JIR4J2Q4;
+        path=/; expires=Fri, 14-Mar-25 15:32:30 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=mGiPX45FNGly_foYJSmnyojpj1qLz6EA0akNXDSOKbg-1741964550996-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      X-Content-Type-Options:
+      - nosniff
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 9204a700ecef7eb2-MAA
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        {
+          "id": "chatcmpl-BB0qM5HgxkPwLpJbHhCxU7BGZ1On5",
+          "object": "chat.completion",
+          "created": 1741964550,
+          "model": "gpt-4o-mini-2024-07-18",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "Sentiment: Positive  \nSentiment Score: 0.9",
+                "refusal": null,
+                "annotations": []
+              },
+              "logprobs": null,
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 45,
+            "completion_tokens": 14,
+            "total_tokens": 59,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "service_tier": "default",
+          "system_fingerprint": "fp_06737a9306"
+        }
+  recorded_at: Fri, 14 Mar 2025 15:02:30 GMT
+recorded_with: VCR 6.3.1

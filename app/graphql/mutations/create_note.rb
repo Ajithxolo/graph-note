@@ -9,12 +9,12 @@ module Mutations
     argument :body, String, required: true
 
     def resolve(title:, body:)
-      note = Note.new(title: title, body: body)
+      result = NoteService.create_note(title: title, body: body)
+      if result.success?
 
-      if note.save
-        { note: note, errors: [] }
+        { note: result&.note, errors: [] }
       else
-        { note: nil, errors: note.errors.full_messages }
+        { note: nil, errors: result.errors }
       end
     end
   end

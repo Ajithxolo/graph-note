@@ -8,14 +8,10 @@ module Mutations
     field :errors, [ String ], null: false
 
     def resolve(id:)
-      note = Note.find_by(id: id)
-      return { success: false, errors: [ "Note not found" ] } unless note
+      result = NoteService.delete_note(id: id)
+      return { success: false, errors: [ "Note not found" ] } unless result
 
-      if note.destroy!
-        { success: true, errors: [] }
-      else
-        { success: false, errors: note.errors.full_messages }
-      end
+      result
     end
   end
 end
