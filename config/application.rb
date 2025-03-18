@@ -10,11 +10,11 @@ module GraphnoteApi
   class Application < Rails::Application
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*' # Change this to your frontend's domain in production
-        resource '/graphql',
+        origins "*" # Change this to your frontend's domain in production
+        resource "/graphql",
           headers: :any,
-          methods: [:get, :post, :options],
-          expose: ['Authorization']
+          methods: [ :get, :post, :options ],
+          expose: [ "Authorization" ]
       end
     end
     config.active_record.query_log_tags_enabled = true
