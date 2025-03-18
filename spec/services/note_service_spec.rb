@@ -97,7 +97,7 @@ RSpec.describe NoteService, type: :service do
       let!(:note) { create(:note, title: 'Test Note', body: 'Some body text') }
 
       it 'deletes the note and returns success' do
-        result = described_class.delete_note(note.id)
+        result = described_class.delete_note({id: note.id})
         aggregate_failures do
           expect(result[:success]).to be true
           expect(result[:errors]).to be_empty
@@ -108,7 +108,7 @@ RSpec.describe NoteService, type: :service do
 
     context 'when the note does not exist' do
       it 'returns an error with success set to false' do
-        result = described_class.delete_note(0)
+        result = described_class.delete_note({id: 0})
         aggregate_failures do
           expect(result[:success]).to be false
           expect(result[:errors]).to include('Note not found')
