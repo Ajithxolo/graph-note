@@ -59,8 +59,8 @@ class NoteService
     end
   end
 
-  def self.delete_note(id)
-    note = Note.find_by(id: id)
+  def self.delete_note(attributes)
+    note = Note.find_by(id: attributes[:id])
     if note
       note.destroy
       { success: true, errors: [] }
