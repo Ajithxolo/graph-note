@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: newpassword
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0"
+    environment:
+      DATABASE_URL: postgresql://postgres:newpassword@db/graphnote_development
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      RAILS_ENV: development
+      BUNDLE_DEPLOYMENT: 0
+      BUNDLE_WITHOUT: "" 
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    volumes:
+      - .:/graph-note
+      - gem_cache:/usr/local/bundle
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+  gem_cache:
