@@ -57,3 +57,5 @@ group :development do
   gem "graphiql-rails"
 end
 gem "graphql"
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
