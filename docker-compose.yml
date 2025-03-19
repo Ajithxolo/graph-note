@@ -11,6 +11,19 @@ services:
     ports:
       - "5432:5432"
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+
   web:
     build: .
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0"
@@ -19,17 +32,19 @@ services:
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       RAILS_ENV: development
       BUNDLE_DEPLOYMENT: 0
-      BUNDLE_WITHOUT: "" 
+      BUNDLE_WITHOUT: ""
+      ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
       - "3000:3000"
     depends_on:
       - db
+      - elasticsearch
     volumes:
       - .:/graph-note
-      - gem_cache:/usr/local/bundle
+      - bundle:/usr/local/bundle
     stdin_open: true
     tty: true
 
 volumes:
   postgres_data:
-  gem_cache:
+  bundle:
