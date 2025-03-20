@@ -20,7 +20,7 @@ RSpec.describe 'GraphQL searchNotes query', type: :request do
   end
 
   before do
-    allow(Note).to receive(:search_by_keyword).and_return([note1])
+    allow(Note).to receive(:search_by_keyword).and_return([ note1 ])
   end
 
   context 'when searching with a valid keyword' do

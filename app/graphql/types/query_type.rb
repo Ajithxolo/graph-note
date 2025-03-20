@@ -8,7 +8,7 @@ module Types
       Note.all
     end
 
-    field :search_notes, [Types::NoteType], null: false, description: "Search notes by keyword" do
+    field :search_notes, [ Types::NoteType ], null: false, description: "Search notes by keyword" do
       argument :keyword, String, required: true
     end
 
