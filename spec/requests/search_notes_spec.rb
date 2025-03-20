@@ -19,6 +19,10 @@ RSpec.describe 'GraphQL searchNotes query', type: :request do
     GRAPHQL
   end
 
+  before do
+    allow(Note).to receive(:search_by_keyword).and_return([note1])
+  end
+
   context 'when searching with a valid keyword' do
     it 'returns notes matching the search keyword' do
       post '/graphql', params: { query: query }
